@@ -18,3 +18,22 @@ body { background: var(--color-ink); color: #e4e4e7; font-family: var(--font-san
 
 .fade-in { animation: fade-in 0.35s ease-out both; }
 @keyframes fade-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+/* ---- Print / Save as PDF: light theme, every section expanded ---- */
+@media print {
+  @page { margin: 14mm; }
+  :root {
+    --color-ink: #fff; --color-panel: #fff; --color-line: #d4d4d8;
+    --color-zinc-100: #111113; --color-zinc-200: #18181b; --color-zinc-300: #27272a;
+    --color-zinc-400: #52525b; --color-zinc-500: #52525b; --color-zinc-600: #71717a; --color-zinc-800: #e4e4e7;
+    --color-red-300: #b91c1c; --color-red-400: #b91c1c;
+    --color-amber-200: #92400e; --color-amber-300: #b45309; --color-amber-400: #b45309;
+    --color-emerald-300: #047857; --color-emerald-400: #047857;
+    --color-violet-300: #6d28d9;
+  }
+  html, body { background: #fff !important; color: #111113 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  li, tr { break-inside: avoid; }
+  section > h2 { break-after: avoid; }
+  .fade-in { animation: none; }
+  a { color: inherit; }
+}

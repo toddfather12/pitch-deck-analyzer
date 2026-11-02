@@ -25,7 +25,7 @@ export default function App() {
 
   return (
     <div className="mx-auto min-h-screen max-w-3xl px-4 py-10 sm:px-6 sm:py-14">
-      <header className="mb-8">
+      <header className="mb-8 print:hidden">
         <div className="flex items-center gap-3">
           <span className="grid size-9 place-items-center rounded-xl bg-violet-600"><BarChart3 size={18} aria-hidden /></span>
           <h1 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">Pitch Deck Analyzer</h1>

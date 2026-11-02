@@ -28,10 +28,10 @@ export default function Section({ title, icon: Icon, count, tone = 'default', de
           {count !== undefined && (
             <span className="rounded-full bg-zinc-800 px-2 py-0.5 text-xs tabular-nums text-zinc-400">{count}</span>
           )}
-          <ChevronDown size={16} aria-hidden className={`text-zinc-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+          <ChevronDown size={16} aria-hidden className={`print:hidden text-zinc-500 transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
       </h2>
-      <div id={panelId} hidden={!open} className="border-t border-line px-5 py-4">
+      <div id={panelId} className={`border-t border-line px-5 py-4 ${open ? '' : 'hidden print:block'}`}>
         {children}
       </div>
     </section>

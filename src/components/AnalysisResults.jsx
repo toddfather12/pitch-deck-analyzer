@@ -2,10 +2,10 @@ import { useState } from 'react'
 import {
   AlertOctagon, AlertTriangle, Check, ClipboardCopy, Download, Flag, FlaskConical, Gauge,
   HelpCircle, MessageCircleQuestion, Shield, Layers, FileQuestion, RotateCcw,
-  ThumbsUp, ListChecks, Factory, Target, Info,
+  ThumbsUp, ListChecks, Factory, Target, Info, FileText, Printer,
 } from 'lucide-react'
 import Section, { Empty } from './Section.jsx'
-import { toMarkdown } from '../lib/format.js'
+import { downloadFile, exportBaseName, printReport, toMarkdown } from '../lib/format.js'
 
 const CONVICTION = {
   low: 'border-red-500/40 bg-red-500/10 text-red-300',
@@ -44,22 +44,26 @@ export default function AnalysisResults({ data, onReset }) {
 
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(toMarkdown(a))
+      await navigator.clipboard.writeText(toMarkdown(a, meta))
       setCopied(true)
       setTimeout(() => setCopied(false), 1800)
     } catch {
       /* clipboard unavailable (insecure context); download still works */
     }
   }
-  const download = () => {
-    const url = URL.createObjectURL(new Blob([JSON.stringify(a, null, 2)], { type: 'application/json' }))
-    const link = Object.assign(document.createElement('a'), { href: url, download: 'pitch-analysis.json' })
-    link.click()
-    URL.revokeObjectURL(url)
-  }
+  const base = exportBaseName(a, meta)
+  const downloadMd = () => downloadFile(`${base}.md`, toMarkdown(a, meta), 'text/markdown;charset=utf-8')
+  const downloadJson = () => downloadFile(`${base}.json`, JSON.stringify(a, null, 2), 'application/json')
 
   return (
     <div className="fade-in space-y-4" aria-live="polite">
+      <div className="hidden print:block">
+        <h1 className="text-xl font-semibold">Business Model Analysis</h1>
+        <p className="text-xs">
+          {new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+          {meta.file ? ` · ${meta.file.name}` : ''} · {meta.audience} review
+        </p>
+      </div>
       <div className="rounded-2xl border border-line bg-panel p-5 sm:p-6">
         <div className="flex flex-wrap items-center gap-2">
           <span className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide ${CONVICTION[a.convictionLevel.level]}`}>
@@ -67,11 +71,17 @@ export default function AnalysisResults({ data, onReset }) {
           </span>
           <span className="rounded-full border border-line px-3 py-1 text-xs capitalize text-zinc-300">Stage: {a.stage.replace(/-/g, ' ')}</span>
           {a.vertical && <span className="rounded-full border border-line px-3 py-1 text-xs text-zinc-300">{a.vertical}</span>}
-          <div className="ml-auto flex gap-2">
-            <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-500">
-              {copied ? <Check size={13} aria-hidden /> : <ClipboardCopy size={13} aria-hidden />} {copied ? 'Copied' : 'Copy Markdown'}
+          <div className="ml-auto flex flex-wrap gap-2 print:hidden">
+            <button onClick={() => printReport(base)} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-500" title="Opens the print dialog; choose Save as PDF">
+              <Printer size={13} aria-hidden /> PDF
             </button>
-            <button onClick={download} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-500">
+            <button onClick={downloadMd} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-500">
+              <FileText size={13} aria-hidden /> Markdown
+            </button>
+            <button onClick={copy} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-500">
+              {copied ? <Check size={13} aria-hidden /> : <ClipboardCopy size={13} aria-hidden />} {copied ? 'Copied' : 'Copy'}
+            </button>
+            <button onClick={downloadJson} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-500">
               <Download size={13} aria-hidden /> JSON
             </button>
             <button onClick={onReset} className="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-xs text-zinc-300 hover:border-zinc-500">

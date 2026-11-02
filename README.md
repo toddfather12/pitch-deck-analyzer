@@ -10,7 +10,7 @@ React 19 + Vite + Tailwind CSS 4 + lucide-react, with a small Node backend that 
 - **Stage lens** (idea, pre-seed, seed, Series A, Series B+, or auto-detect): judges the venture against what is reasonable for that stage and returns a met / partial / missing readiness checklist.
 - **Vertical lens** (15 industries, a custom entry, or auto-detect): applies that industry's key metrics and typical risks, with clearly labelled rules of thumb rather than invented benchmarks.
 - **Audience:** accelerator (direct, investor-readiness) or classroom (developmental).
-- **Output:** summary, stage, 8 scored dimensions, strengths, tier 1 / tier 2 issues, stage readiness, vertical metrics and risks, conversation prompts, founder next steps, competitive advantages, assumptions, red flags, missing information, conviction level, and a one-line verdict. Copy as Markdown or download JSON.
+- **Output:** summary, stage, 8 scored dimensions, strengths, tier 1 / tier 2 issues, stage readiness, vertical metrics and risks, conversation prompts, founder next steps, competitive advantages, assumptions, red flags, missing information, conviction level, and a one-line verdict. Export as a PDF (print-styled, via the browser's "Save as PDF"), download a `.md` file, copy Markdown, or download JSON. Files are named like `pitch-analysis-<deck>-<date>`.
 
 Lenses live in `shared/lenses.js`; edit that file to add or tune stages and verticals.
 

@@ -1,7 +1,35 @@
-// Turn an analysis into Markdown for copying into notes/email.
-export function toMarkdown(a) {
+const today = () => new Date().toISOString().slice(0, 10)
+
+/** e.g. "pitch-analysis-looploader-2026-11-02" - from the uploaded file name when there is one. */
+export function exportBaseName(a, meta) {
+  const raw = meta?.file?.name?.replace(/\.[^.]+$/, '') || a.vertical || 'report'
+  const slug = raw.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 50) || 'report'
+  return `pitch-analysis-${slug}-${today()}`
+}
+
+/** Save text as a file via a temporary link. */
+export function downloadFile(name, content, type) {
+  const url = URL.createObjectURL(new Blob([content], { type }))
+  const link = Object.assign(document.createElement('a'), { href: url, download: name })
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  setTimeout(() => URL.revokeObjectURL(url), 1000)
+}
+
+/** Opens the print dialog (choose "Save as PDF"); the document title becomes the suggested file name. */
+export function printReport(name) {
+  const prev = document.title
+  document.title = name
+  window.addEventListener('afterprint', () => { document.title = prev }, { once: true })
+  window.print()
+}
+
+// Turn an analysis into Markdown for copying into notes/email or saving as a file.
+export function toMarkdown(a, meta) {
   const list = (items, fn) => (items.length ? items.map(fn).join('\n') : '_None identified._')
   return `# Business Model Analysis
+_Generated ${today()}${meta?.file ? ` from ${meta.file.name}` : ''}_
 
 **Stage:** ${a.stage} · **Vertical:** ${a.vertical} · **Conviction:** ${a.convictionLevel.level}
 ${a.convictionLevel.rationale}
