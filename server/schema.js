@@ -3,11 +3,11 @@
 // so the UI never has to defend against malformed JSON.
 
 export const DIMENSIONS = [
-  { id: 'customer', name: 'Customer & Problem' },
-  { id: 'value_prop', name: 'Value Proposition' },
+  { id: 'customer', name: 'Problem & Customer Fit' },
   { id: 'revenue_model', name: 'Revenue Model' },
   { id: 'unit_economics', name: 'Unit Economics' },
   { id: 'go_to_market', name: 'Go-to-Market' },
+  { id: 'traction', name: 'Traction & Evidence' },
   { id: 'moat', name: 'Defensibility & Moat' },
   { id: 'scalability', name: 'Scalability' },
   { id: 'team', name: 'Team & Execution' },
@@ -42,6 +42,13 @@ export const ANALYSIS_SCHEMA = {
     'redFlags',
     'missingInformation',
     'convictionLevel',
+    'vertical',
+    'strengths',
+    'stageReadiness',
+    'verticalMetrics',
+    'verticalRisks',
+    'founderNextSteps',
+    'calibratingStatement',
   ],
   properties: {
     businessModelSummary: str(
@@ -131,5 +138,63 @@ export const ANALYSIS_SCHEMA = {
         rationale: str('2-3 sentences explaining the level and what would raise it.'),
       },
     },
+    vertical: str('The industry vertical you applied, as a short label (e.g. "Fintech"). Infer it if none was specified.'),
+    strengths: {
+      type: 'array',
+      description: '2-4 genuine, specific strengths. Cite evidence from the material; no generic praise.',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['title', 'evidence'],
+        properties: {
+          title: str('Short headline.'),
+          evidence: str('The specific evidence from the deck or context.'),
+        },
+      },
+    },
+    stageReadiness: {
+      type: 'array',
+      description: 'The stage criteria you were given, each judged against the material. Use the criteria text verbatim.',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['criterion', 'status', 'note'],
+        properties: {
+          criterion: str('The stage criterion.'),
+          status: { type: 'string', enum: ['met', 'partial', 'missing'] },
+          note: str('One or two sentences of evidence or what is missing.'),
+        },
+      },
+    },
+    verticalMetrics: {
+      type: 'array',
+      description: 'The metrics that matter most in this vertical, and what the material says about each.',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['metric', 'reported', 'benchmark', 'assessment'],
+        properties: {
+          metric: str('Metric name.'),
+          reported: str('What the deck reports, quoted or paraphrased, or "Not provided".'),
+          benchmark: str('A rough rule of thumb for what is typical at this stage, or "No reliable benchmark". Never present a rule of thumb as a fact about this company.'),
+          assessment: { type: 'string', enum: ['strong', 'ok', 'weak', 'unknown'] },
+        },
+      },
+    },
+    verticalRisks: strList('Risks specific to this vertical that the deck does or does not address (regulatory, platform dependency, capital intensity, etc.).'),
+    founderNextSteps: {
+      type: 'array',
+      description: '3-5 concrete, time-bound actions before the next review.',
+      items: {
+        type: 'object',
+        additionalProperties: false,
+        required: ['action', 'timeframe'],
+        properties: {
+          action: str('A specific action, not generic advice.'),
+          timeframe: str('e.g. "2 weeks", "30 days".'),
+        },
+      },
+    },
+    calibratingStatement: str('One honest, direct sentence capturing the overall signal. Do not default to encouragement if the model has fundamental problems.'),
   },
 }

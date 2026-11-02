@@ -21,16 +21,21 @@ export async function fetchConfig(signal) {
   }
 }
 
-export async function analyzePitch({ deck, context, mode, accessCode, signal }) {
+export async function analyzePitch({ deck, context, mode, audience, stage, vertical, verticalCustom, file, accessCode, signal }) {
   const timeout = AbortSignal.timeout(CLIENT_TIMEOUT_MS)
   const combined = signal ? AbortSignal.any([signal, timeout]) : timeout
+
+  // Multipart so files go up as raw bytes (no base64 inflation). The browser sets the boundary header.
+  const form = new FormData()
+  for (const [k, v] of Object.entries({ deck, context, mode, audience, stage, vertical, verticalCustom })) form.set(k, v ?? '')
+  if (file) form.set('file', file, file.name)
 
   let res
   try {
     res = await fetch('/api/analyze', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(accessCode ? { 'X-Access-Code': accessCode } : {}) },
-      body: JSON.stringify({ deck, context, mode }),
+      headers: accessCode ? { 'X-Access-Code': accessCode } : {},
+      body: form,
       signal: combined,
     })
   } catch (err) {
@@ -48,7 +53,9 @@ export async function analyzePitch({ deck, context, mode, accessCode, signal }) 
 
   if (!res.ok) {
     const fallback =
-      res.status === 504 || res.status === 502
+      res.status === 413
+        ? 'That file is too large for this server. Try a smaller file or export a compressed PDF.'
+        : res.status === 504 || res.status === 502
         ? 'The server timed out or is unavailable. Try Quick mode.'
         : `Request failed (${res.status}).`
     throw new ApiError(data?.error?.message || fallback, { code: data?.error?.code, status: res.status })

@@ -1,8 +1,18 @@
 # Pitch Deck Analyzer
 
-Paste a pitch deck, get a structured, mentor-style analysis of the **business model**: a summary, stage, eight scored dimensions, tier 1 (deal-breaker) and tier 2 (worth exploring) issues, questions to ask the founders, competitive advantages, key assumptions, red flags, missing information, and an overall conviction level.
+Upload a pitch deck (PDF, PPTX, DOCX, image) or paste it, pick a stage and vertical, and get a structured, mentor-style analysis of the **business model**: a summary, stage, eight scored dimensions, tier 1 (deal-breaker) and tier 2 (worth exploring) issues, questions to ask the founders, competitive advantages, key assumptions, red flags, missing information, and an overall conviction level.
 
 React 19 + Vite + Tailwind CSS 4 + lucide-react, with a small Node backend that calls Claude.
+
+## Features
+
+- **File upload:** PDF and images go to Claude natively, so it reads charts, tables and layout. PPTX and DOCX have their text (and PPTX speaker notes) extracted server-side, in true slide order; image-only slides are flagged so you know to export a PDF. Legacy `.ppt`/`.key` files get a clear "export as PDF" message.
+- **Stage lens** (idea, pre-seed, seed, Series A, Series B+, or auto-detect): judges the venture against what is reasonable for that stage and returns a met / partial / missing readiness checklist.
+- **Vertical lens** (15 industries, a custom entry, or auto-detect): applies that industry's key metrics and typical risks, with clearly labelled rules of thumb rather than invented benchmarks.
+- **Audience:** accelerator (direct, investor-readiness) or classroom (developmental).
+- **Output:** summary, stage, 8 scored dimensions, strengths, tier 1 / tier 2 issues, stage readiness, vertical metrics and risks, conversation prompts, founder next steps, competitive advantages, assumptions, red flags, missing information, conviction level, and a one-line verdict. Copy as Markdown or download JSON.
+
+Lenses live in `shared/lenses.js`; edit that file to add or tune stages and verticals.
 
 ## What changed from v1
 
@@ -27,7 +37,7 @@ Tests (no API key needed, the Claude client is stubbed): `npm test`
 
 ## Deploy
 
-**Vercel**: import the repo, add `ANTHROPIC_API_KEY`. `api/analyze.js` becomes the serverless function; `vercel.json` raises its max duration for Deep mode. Deep analyses can take a minute or more, so use a plan that allows long function durations.
+**Vercel**: import the repo, add `ANTHROPIC_API_KEY`. Vercel functions reject request bodies over about 4.5 MB, so uploads default to a 4 MB limit there; for larger decks use a Node/Docker host (default 25 MB, set `MAX_UPLOAD_MB` up to 30). `api/analyze.js` becomes the serverless function; `vercel.json` raises its max duration for Deep mode. Deep analyses can take a minute or more, so use a plan that allows long function durations.
 
 **Anywhere with Node or Docker** (Render, Fly, Railway, a VPS): `npm run build && npm start`, or `docker build -t pitch-deck-analyzer . && docker run -p 8787:8787 -e ANTHROPIC_API_KEY=... pitch-deck-analyzer`. `server/index.js` serves both the built app and the API.
 
